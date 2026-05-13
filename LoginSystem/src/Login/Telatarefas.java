@@ -6,31 +6,36 @@ import javax.swing.*;
 
 public class Telatarefas extends JFrame {
 
-    /**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	private JPanel painelLista;
+    private static final long serialVersionUID = 1L;
+
+    private JPanel painelLista;
     private JTextField campoTarefa;
+
+    // Listas
     private ArrayList<JCheckBox> listaTarefas = new ArrayList<>();
+    private ArrayList<JLabel> listaLabels = new ArrayList<>();
+    private ArrayList<JPanel> listaCards = new ArrayList<>();
+
     private JLabel lblVazio;
 
     public Telatarefas() {
 
         setTitle("HabitNow");
         setSize(500, 500);
+        setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         // Cores
-        Color fundo = new Color(18, 18, 18); // preto suave
-        Color vermelho = new Color(170, 30, 45); // vermelho elegante
+        Color fundo = new Color(18, 18, 18);
+        Color vermelho = new Color(170, 30, 45);
         Color branco = Color.WHITE;
 
         JPanel contentPane = new JPanel(new BorderLayout());
         contentPane.setBackground(fundo);
         setContentPane(contentPane);
 
-        // Topo
+        // Início
+
         JPanel topo = new JPanel();
         topo.setBackground(fundo);
 
@@ -48,22 +53,30 @@ public class Telatarefas extends JFrame {
         btnAdicionar.setForeground(branco);
         btnAdicionar.setFocusPainted(false);
 
+        JButton btnEditar = new JButton("Editar");
+        btnEditar.setBackground(vermelho);
+        btnEditar.setForeground(branco);
+        btnEditar.setFocusPainted(false);
+
         topo.add(titulo);
         topo.add(campoTarefa);
         topo.add(btnAdicionar);
+        topo.add(btnEditar);
 
         contentPane.add(topo, BorderLayout.NORTH);
 
-        // Lista
+        // Lista de tarefas
+
         painelLista = new JPanel();
         painelLista.setLayout(new BoxLayout(painelLista, BoxLayout.Y_AXIS));
         painelLista.setBackground(fundo);
 
         JScrollPane scroll = new JScrollPane(painelLista);
         scroll.setBorder(null);
+
         contentPane.add(scroll, BorderLayout.CENTER);
 
-        // Texto vazio
+        // Texto inicial
         lblVazio = new JLabel("Adicione sua primeira tarefa!");
         lblVazio.setForeground(Color.GRAY);
         lblVazio.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -71,16 +84,24 @@ public class Telatarefas extends JFrame {
         painelLista.add(Box.createVerticalStrut(20));
         painelLista.add(lblVazio);
 
-        // Botão reset 
+     
+        // Botão resetar
+   
+
         JButton btnResetar = new JButton("Resetar tarefas");
+
         btnResetar.setBackground(vermelho);
         btnResetar.setForeground(branco);
         btnResetar.setFocusPainted(false);
 
         contentPane.add(btnResetar, BorderLayout.SOUTH);
 
-        // Adicionar tarefa
+
+        //Adicionar tarefas
+ 
+
         btnAdicionar.addActionListener(e -> {
+
             String texto = campoTarefa.getText().trim();
 
             if (!texto.isEmpty()) {
@@ -90,6 +111,7 @@ public class Telatarefas extends JFrame {
                 }
 
                 JPanel card = new JPanel(new FlowLayout(FlowLayout.LEFT));
+
                 card.setBackground(new Color(30, 30, 30));
                 card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
 
@@ -103,13 +125,23 @@ public class Telatarefas extends JFrame {
                 card.add(label);
 
                 painelLista.add(card);
+
+                // Guardar referências
                 listaTarefas.add(check);
+                listaLabels.add(label);
+                listaCards.add(card);
 
                 // Riscar tarefa
                 check.addActionListener(ev -> {
+
                     if (check.isSelected()) {
-                        label.setText("<html><strike>" + texto + "</strike></html>");
+
+                        label.setText(
+                            "<html><strike>" + texto + "</strike></html>"
+                        );
+
                     } else {
+
                         label.setText(texto);
                     }
                 });
@@ -121,14 +153,65 @@ public class Telatarefas extends JFrame {
             }
         });
 
-        // Resetar
+    //editar tarefas
+
+        btnEditar.addActionListener(e -> {
+
+            boolean encontrou = false;
+
+            for (int i = 0; i < listaTarefas.size(); i++) {
+
+                JCheckBox check = listaTarefas.get(i);
+
+                if (check.isSelected()) {
+
+                    encontrou = true;
+
+                    JLabel label = listaLabels.get(i);
+
+                    String textoAtual = label.getText()
+                            .replace("<html><strike>", "")
+                            .replace("</strike></html>", "");
+
+                    String novoTexto = JOptionPane.showInputDialog(
+                            this,
+                            "Editar tarefa:",
+                            textoAtual
+                    );
+
+                    if (novoTexto != null && !novoTexto.trim().isEmpty()) {
+
+                        label.setText(
+                            "<html><strike>" + novoTexto + "</strike></html>"
+                        );
+                    }
+
+                    break;
+                }
+            }
+
+            if (!encontrou) {
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Selecione uma tarefa para editar."
+                );
+            }
+        });
+
+     //resetar tarefas
+        
         btnResetar.addActionListener(e -> {
+
             for (JCheckBox tarefa : listaTarefas) {
                 tarefa.setSelected(false);
             }
 
             painelLista.removeAll();
+
             listaTarefas.clear();
+            listaLabels.clear();
+            listaCards.clear();
 
             painelLista.add(Box.createVerticalStrut(20));
             painelLista.add(lblVazio);
@@ -138,9 +221,11 @@ public class Telatarefas extends JFrame {
         });
     }
 
+
     public static void main(String[] args) {
+
         SwingUtilities.invokeLater(() -> {
             new Telatarefas().setVisible(true);
         });
     }
-}
+    }
